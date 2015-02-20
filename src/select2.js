@@ -20,7 +20,7 @@ angular.module("rt.select2", [])
             }
         };
     })
-    .directive("select2", function ($rootScope, $timeout, $parse, $filter, select2Config, select2Stack) {
+    .directive("select2", ["$rootScope", "$timeout", "$parse", "$filter", "select2Config", "select2Stack", function ($rootScope, $timeout, $parse, $filter, select2Config, select2Stack) {
         "use strict";
 
         var filter = $filter("filter");
@@ -129,7 +129,7 @@ angular.module("rt.select2", [])
                         var values = filterValues(valuesFn(scope));
                         var keys = (keyName ? sortedKeys(values) : values) || [];
 
-                        var options = [];
+	                    var options = [];
                         for (var i = 0; i < keys.length; i++) {
                             var locals = {};
                             var key = i;
@@ -142,12 +142,13 @@ angular.module("rt.select2", [])
                             var value = valueFn(scope, locals);
                             var label = displayFn(scope, locals) || "";
 
-                            if (label.toLowerCase().indexOf(query.term.toLowerCase()) > -1) {
-                                options.push({
+	                        if (label.toLowerCase().indexOf(query.term.toLowerCase()) > -1) {
+                                optionItems[value] = {
                                     id: value,
                                     text: label,
                                     obj: values[key]
-                                });
+                                };
+	                            options.push(optionItems[value]);
                             }
                         }
 
@@ -169,9 +170,17 @@ angular.module("rt.select2", [])
                     opts.query = function (query) {
                         var cb = query.callback;
                         query.callback = function (data) {
-                            for (var i = 0; i < data.results.length; i++) {
+	                        for (var i = 0; i < data.results.length; i++) {
                                 var result = data.results[i];
-                                optionItems[result.id] = result;
+	                            if (result.children) {
+		                            for (var c = 0; c < result.children.length; c++) {
+			                            var child = result.children[c];
+			                            optionItems[child.id] = child;
+			                            optionItems[child.id].obj = child;
+		                            }
+	                            } else {
+		                            optionItems[result.id] = result;
+	                            }
                             }
                             cb(data);
                         };
@@ -194,10 +203,19 @@ angular.module("rt.select2", [])
                             var selection = [];
                             for (var i = 0; i < options.length; i++) {
                                 var option = options[i];
-                                var viewValue = controller.$viewValue || [];
-                                if (viewValue.indexOf(option.id) > -1) {
-                                    selection.push(option);
-                                }
+	                            var viewValue = controller.$viewValue || [];
+	                            if (option.children) {
+									for (var j = 0; j < option.children.length; j++) {
+										var child = option.children[j];
+										if (viewValue.indexOf(child.id) > -1) {
+											selection.push(child);
+										}
+									}
+	                            } else {
+		                            if (viewValue.indexOf(option.id) > -1) {
+			                            selection.push(option);
+		                            }
+	                            }
                             }
                             callback(selection);
                         });
@@ -251,10 +269,10 @@ angular.module("rt.select2", [])
                             if (isMultiple) {
                                 var vals = [];
                                 for (var i = 0; i < e.val.length; i++) {
-                                    val = optionItems[e.val[i]];
-                                    if (val) {
-                                        vals.push(val.id);
-                                    }
+	                                val = optionItems[e.val[i]];
+	                                if (val) {
+		                                vals.push(val.id);
+	                                }
                                 }
                                 controller.$setViewValue(vals);
                             } else {
@@ -279,4 +297,4 @@ angular.module("rt.select2", [])
                 });
             }
         };
-    });
+    }]);
