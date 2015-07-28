@@ -127,10 +127,10 @@ angular.module("rt.select2", [])
                     return values;
                 }
 
-                if (attrs.ngOptions) {
+                if (attrs.oiOptions) {
                     var match;
-                    if (!(match = attrs.ngOptions.match(NG_OPTIONS_REGEXP))) {
-                        throw new Error("Invalid ngOptions encountered!");
+                    if (!(match = attrs.oiOptions.match(NG_OPTIONS_REGEXP))) {
+                        throw new Error("Invalid oiOptions encountered!");
                     }
 
                     var displayFn = $parse(match[2] || match[1]);
