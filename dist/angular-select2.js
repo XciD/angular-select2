@@ -338,6 +338,9 @@ angular.module("rt.select2", [])
                         getSelection(callback);
                     };
                 } else {
+                    if (isMultiple){
+                        element.val("1");
+                    }
                     var _initSelection = opts.initSelection;
                     opts.initSelection = function (element, callback) {
                         _initSelection(element, function (result) {
