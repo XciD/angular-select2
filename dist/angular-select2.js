@@ -344,8 +344,16 @@ angular.module("rt.select2", [])
                     var _initSelection = opts.initSelection;
                     opts.initSelection = function (element, callback) {
                         _initSelection(element, function (result) {
-                            optionItems[result.id] = result;
-                            callback(result);
+
+                            angular.forEach(result, function (obj) {
+                                optionItems[obj.id] = obj;
+                            });
+
+                            if (isMultiple){
+                                callback(result);
+                            }else {
+                                callback(result[0]);
+                            }
                         });
                     };
                 }
